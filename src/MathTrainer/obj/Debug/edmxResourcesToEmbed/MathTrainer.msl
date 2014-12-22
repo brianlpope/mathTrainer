@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="MathTrainerStoreContainer" CdmEntityContainer="MathTrainerContainer">
+    <EntitySetMapping Name="Scores">
+      <EntityTypeMapping TypeName="IsTypeOf(MathTrainer.Score)">
+        <MappingFragment StoreEntitySet="Scores">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="CorrectCount" ColumnName="CorrectCount" />
+          <ScalarProperty Name="TestDate" ColumnName="TestDate" />
+          <ScalarProperty Name="CompletionSeconds" ColumnName="CompletionSeconds" />
+          <ScalarProperty Name="QuestionCount" ColumnName="QuestionCount" />
+          <ScalarProperty Name="TestType" ColumnName="TestType" />
+          <ScalarProperty Name="CompletedQuestionsCount" ColumnName="CompletedQuestionsCount" />
+          <ScalarProperty Name="AllowedSeconds" ColumnName="AllowedSeconds" />
+          <ScalarProperty Name="IncorrectCount" ColumnName="IncorrectCount" />
+          <ScalarProperty Name="UserId" ColumnName="UserId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Users">
+      <EntityTypeMapping TypeName="IsTypeOf(MathTrainer.User)">
+        <MappingFragment StoreEntitySet="Users">
+          <ScalarProperty Name="Id" ColumnName="Id" />
+          <ScalarProperty Name="DisplayName" ColumnName="DisplayName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

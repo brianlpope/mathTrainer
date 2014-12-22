@@ -1,0 +1,8 @@
+C:\projects\MathTrainer\MathTrainer\bin\Release\MathTrainer.exe
+C:\projects\MathTrainer\MathTrainer\bin\Release\MathTrainer.pdb
+C:\projects\MathTrainer\MathTrainer\obj\Release\MathTrainer.Properties.Resources.resources
+C:\projects\MathTrainer\MathTrainer\obj\Release\MathTrainer.QuizForm.resources
+C:\projects\MathTrainer\MathTrainer\obj\Release\MathTrainer.MainForm.resources
+C:\projects\MathTrainer\MathTrainer\obj\Release\MathTrainer.csproj.GenerateResource.Cache
+C:\projects\MathTrainer\MathTrainer\obj\Release\MathTrainer.exe
+C:\projects\MathTrainer\MathTrainer\obj\Release\MathTrainer.pdb
