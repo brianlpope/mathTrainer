@@ -1,90 +1,140 @@
-﻿using System;
-using System.Timers;
-using Timer = System.Timers.Timer;
-
-namespace MathTrainer
+﻿namespace MathTrainer
 {
-    public delegate void WriteTimeHandler(TimeSpan elapsedTime);
-    public delegate void TimeExpiredHandler();
+    using System;
+    using System.Collections.Generic;
+    using Timer = System.Timers.Timer;
 
-    public class Quiz
+    public abstract class Quiz
     {
-        Timer timer = new Timer(1000);
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public TimeSpan ElapsedTime { get; set; }
-        public int QuestionCount { get; set; }
-        public int RightCount { get; set; }
-        public int WrongCount { get; set; }
-        public int SecondsAllowed { get; set; }
-        public WriteTimeHandler TimeWriter { get; set; }
-        public TimeExpiredHandler TimeExpired { get; set; }
+        private Timer _timer;
+        private ElapsedTimeDelegate _elapsedTimeDelegate;
+        private double _runningSeconds;
+        private int _currentQuestionIndex = 0;
+        private bool _isPaused = false;
 
-        private Random _random = new Random();
+        public delegate void ElapsedTimeDelegate(TimeSpan elapsedTime);
 
-        public Quiz() 
+        public Quiz()
         {
-            timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+            _timer = new Timer(1000);
+            _timer.Enabled = false;
+            _timer.Elapsed += TimerElapsed;
         }
 
-        private void OnTimedEvent(object source, ElapsedEventArgs e)
+        private void TimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            ElapsedTime = DateTime.Now.Subtract(StartTime);
-            TimeWriter(ElapsedTime);
+            _runningSeconds++;
+            ElapsedTime = TimeSpan.FromSeconds(_runningSeconds);
+            _elapsedTimeDelegate(ElapsedTime);
         }
 
-        public void Start()
+        public virtual TimeSpan ElapsedTime { get; private set; }
+
+        public Question GetFirstQuestion()
         {
-            timer.Enabled = true;
-            timer.Start();
-            RightCount = 0;
-            WrongCount = 0;
-            StartTime = DateTime.Now;
+            return Questions[0];
         }
 
-        public void Stop()
+        public bool HasMoreQuestions()
         {
-            timer.Stop();
-            timer.Enabled = false;
+            int nextIndex = _currentQuestionIndex + 1;
+            return Questions != null && nextIndex < Questions.Count;
         }
 
-        public Question GetQuestion(char selOperator)
+        private void IncrementQuestionIndex()
         {
-            return QuestionFactory.GetQuestion(selOperator, _random);
+
         }
-    }
 
-    public class QuestionFactory
-    {
-        public static Question GetQuestion(char selOperator, Random random)
+
+        public Question NextQuestion
         {
-            Question question = null;
+            get
+            {           
+                Question returnVal = null;
+                if (HasMoreQuestions())
+                {
+                    returnVal =  Questions[++_currentQuestionIndex];
+                }
+                return returnVal;
+            }
+        }
 
-            switch(selOperator)
+        public virtual int CorrectCount { get; set; }
+
+        public virtual int IncorrectCount { get; set; }
+
+        public virtual int QuestionCount { get; set; }
+
+        public virtual decimal PercentCorrect { get; set; }
+
+        public virtual IDictionary<string, int> Options { get; set; }
+
+        public virtual bool CheckAnswer(int answer)
+        {
+            bool isCorrect = answer == CurrentQuestion.Answer;
+            return isCorrect;
+        }
+
+        public bool IsPaused {
+            get { return _isPaused; }
+            set { _isPaused = value; } 
+        }
+
+        public virtual void UpdateCorrectIncorrectCount(int answer)
+        {
+            bool isCorrect = CheckAnswer(answer);
+            if (isCorrect)
             {
-                case '*':
-                    question = new MultiplicationQuestion(random);
-                    break;
-                case '+':
-                    question = new AdditionQuestion(random);
-                    break;
-                case '-':
-                    question = new SubtractionQuestion(random);
-                    break;
-                case '/':
-                    question = new DivisionQuestion(random);
-
-                    while (question.Operand1.Value % question.Operand2.Value != 0)
-                    {
-                        question.Operand2.Value++;
-                    }
-                    break;
-                case 's':
-                    question = new Sequence(random);
-                    break;
+                CorrectCount++;
+                return;
             }
 
-            return question;
+            IncorrectCount++;
+        }
+
+        public Question CurrentQuestion
+        {
+            get { return Questions[_currentQuestionIndex]; }
+        }
+
+        public virtual List<Question> Questions { get; set; }
+
+        public abstract void LoadQuestions();
+
+        public virtual void Start(ElapsedTimeDelegate elapsedTimeDelegate)
+        {
+            if(!IsPaused)
+            { 
+                _elapsedTimeDelegate = elapsedTimeDelegate;
+                InitializeQuiz();
+            }
+            _timer.Enabled = true;
+        }
+
+        private void InitializeQuiz()
+        {
+            _runningSeconds = 0;
+            _currentQuestionIndex = 0;
+            CorrectCount = 0;
+            IncorrectCount = 0;
+        }
+
+        public virtual void Stop()
+        {
+            _timer.Enabled = false;
+        }
+
+        protected virtual int GetOptionValue(string optionName)
+        {
+            int value = 1;
+
+            if (Options.ContainsKey(optionName))
+            {
+                value = Options[optionName];
+            }
+
+            return value;
         }
     }
 }
